@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
 
-func syaHello(w http.ResponseWriter, r *http.Request){
+func sayHello(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
 	fmt.Println(r.Form)
 	fmt.Println("path", r.URL.Path)
@@ -19,19 +20,19 @@ func syaHello(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, "Hello New man")
 }
 
-func login(w http.ResponseWriterm r *http.Request){
+func login(w http.ResponseWriter, r *http.Request){
 		fmt.Println("method:", r.Method)
 		if r.Method == "GET"{
 			t, _ := template.ParseFiles("login.gtpl")
 			log.Println(t.Execute(w, nil))
 		}else{
-			fmt,Println("username:", r.Form[username])
-			fmt,Println("password:", r.Form[password])
+			fmt.Println("username:", r.Form[username])
+			fmt.Println("password:", r.Form[password])
 		}
 }
 
 func main(){
-	http.HandleFunc("/", syaHello)
+	http.HandleFunc("/", sayHello)
 	http.HandleFunc("/login", login)
 	err := http.ListenAndServe(":9090", nil)
 	if err!=nil{
