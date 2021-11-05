@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"blog-service/global"
+	"blog-service/internal/model"
 	"blog-service/internal/routers"
 	"blog-service/pkg/setting"
 
@@ -19,9 +20,16 @@ import (
 func init(){
 	err := setupSetting()
 	if err != nil{
-		log.Fatalf("init.setupSetting er: %v", err)
+		log.Fatalf("init.setupSetting err: %v", err)
 	}
+
+	err = setupDBEngine()
+	if err != nil{
+		log.Fatalf("init.setupDBEngine err: %v", err)
+	}
+
 }
+
 
 // 进行配置，将配置文件的内容映射到应用程序的配置结构当中
 func setupSetting() error{
@@ -45,6 +53,18 @@ func setupSetting() error{
 	}
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
+	return nil
+}
+
+func setupDBEngine() error{
+
+	var err error
+	global.DBEngine, err = model.NewDBEngine(global.DatabaseSettings)
+
+	if err != nil{
+		return err
+	}
+
 	return nil
 }
 
