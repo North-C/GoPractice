@@ -32,6 +32,7 @@ func FindCgroupMountPoint(subsystem string) string {
 	return ""
 }
 
+// 获取cgroup挂载的路径
 func GetCgroupPath(subsystem string, cgroupPath string, autoCreate bool) (string, error) {
 	// 找到 cgroup 的 root
 	cgroupRoot := FindCgroupMountPoint(subsystem)

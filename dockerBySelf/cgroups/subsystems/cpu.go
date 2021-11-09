@@ -1,5 +1,8 @@
 package subsystems
 
+import (
+
+)
 
 type CpuSubsystem struct{
 
@@ -7,15 +10,36 @@ type CpuSubsystem struct{
 
 
 func (s *CpuSubsystem) Set(cgroupPath string, res *ResourceConfig) error{
-	if 
+	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true); err == nil{
+		if res.CpuShare != ""{
+			// 按照权重比例来设置
+			if err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpu.shares")){
+				return fmt.Errorf("set group cpu share fail %v", err)
+			}
+		}
+		return nil
+	}else{
+		return nil
+	}
 }
 
 func (s *CpuSubsystem) Remove(path string) error{
-	
+	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil{
+		return os.RemoveAll(subsystemCgroupPath)
+	}else{
+		return err
+	}
 }
 
 func (s *CpuSubsystem) Apply(path string, pid int) error{
-
+	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil{
+		if err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644); err != nil{
+			return fmt.Errorf"set cgroup proc fail %v", err)		
+		}
+		return nil
+	}else{
+		return fmt.Errorf("get cgroup %s error: %v", cgroupPath, err)
+	}
 }
 
 
