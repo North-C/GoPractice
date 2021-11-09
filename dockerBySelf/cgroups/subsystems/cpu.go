@@ -1,48 +1,50 @@
 package subsystems
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
 
+	"strconv"
 )
 
-type CpuSubsystem struct{
-
+type CpuSubsystem struct {
 }
 
-
-func (s *CpuSubsystem) Set(cgroupPath string, res *ResourceConfig) error{
-	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true); err == nil{
-		if res.CpuShare != ""{
+func (s *CpuSubsystem) Set(cgroupPath string, res *ResourceConfig) error {
+	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true); err == nil {
+		if res.CpuShare != "" {
 			// 按照权重比例来设置
-			if err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpu.shares")){
+			if err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpu.shares"), []byte(res.CpuShare), 0644); err != nil {
 				return fmt.Errorf("set group cpu share fail %v", err)
 			}
 		}
 		return nil
-	}else{
+	} else {
 		return nil
 	}
 }
 
-func (s *CpuSubsystem) Remove(path string) error{
-	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil{
+func (s *CpuSubsystem) Remove(cgroupPath string) error {
+	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil {
 		return os.RemoveAll(subsystemCgroupPath)
-	}else{
+	} else {
 		return err
 	}
 }
 
-func (s *CpuSubsystem) Apply(path string, pid int) error{
-	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil{
-		if err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644); err != nil{
-			return fmt.Errorf"set cgroup proc fail %v", err)		
+func (s *CpuSubsystem) Apply(cgroupPath string, pid int) error {
+	if subsystemCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil {
+		if err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644); err != nil {
+			return fmt.Errorf("set cgroup proc fail %v", err)
 		}
 		return nil
-	}else{
+	} else {
 		return fmt.Errorf("get cgroup %s error: %v", cgroupPath, err)
 	}
 }
 
-
-func (s *CpuSubsystem) Name() string{
+func (s *CpuSubsystem) Name() string {
 	return "cpu"
 }

@@ -30,6 +30,7 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File){
 	// 传入管道文件读取端的句柄, ExtraFiles会外带这个文件句柄去创建子进程，它不包含标准的三个
 	// 是除他们之外的第四个， /proc/self/fd可以看到
 	cmd.ExtraFiles = []*os.File{readPipe}
+	cmd.Dir = "/root/busybox"  	// 利用busybox来作为root目录
 	return cmd, writePipe
 }
 

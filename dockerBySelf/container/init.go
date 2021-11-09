@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -62,10 +63,59 @@ func readUserCommand() []string{
 	return strings.Split(msgStr, " ")
 
 }
-/*
-func setUpMount(){}
 
-func pivotRoot(root string) error{
+// init 挂载点, 调用pivotRoot()重新挂载
+func setUpMount(){
+	// 获取当前路径
+	pwd, err := os.Getwd()
+	if err != nil{
+		log.Errorf("Get current location error %v", err)
+		return
+	}
+	log.Infof("Current location %s", pwd)
+	pivotRoot(pwd)
+
+	// mount proc 
+	defaultMountFlags := syscall.MS_NOEXEC | syscall.MS_NOSUID | syscall.MS_NODEV
+	syscall.Mount("proc", "/proc", "proc", uintptr(defaultMountFlags), "")
+
+	// tmpfs是一种基于内存的文件系统，可以使用RAM或swap分区来存储
+	// func Mount(source string, target string, fstype string, flags uintptr, data string) (err error)
+	syscall.Mount("tmpfs", "/dev", "tmpfs", syscall.MS_NOSUID | syscall.MS_STRICTATIME, "mode=755")
+
 	
 }
-*/
+
+// pivot_root是系统调用，区别于chroot，它会将当前进程的root文件系统完全摘除于之前的root文件系统依赖以外
+func pivotRoot(root string) error{
+	// bind mount 将相同的内容换一个挂载点 
+	if err := syscall.Mount(root, root, "bind", syscall.MS_BIND | syscall.MS_REC, ""); err != nil{
+		return fmt.Errorf("Mount rootfs to itself error: %v", err)
+	}
+
+	// 创建rootfs/.pivot_root存储 old_root
+	pivotDir := filepath.Join(root, ".pivot_root")
+	if err := os.Mkdir(pivotDir, 0777); err != nil{
+		return err
+	}
+
+	//pivot_root到新的rootfs
+	if err := syscall.PivotRoot(root, pivotDir); err !=nil{
+		return fmt.Errorf("chdir / %v ", err)
+	}
+
+	// 修改当前的工作目录到根目录
+	if err := syscall.Chdir("/"); err != nil{
+		return fmt.Errorf("chdir / %v", err)
+	}
+
+	pivotDir = filepath.Join("/", ".pivot_root")
+
+	// umount rootfs/.pivot_root
+	if err := syscall.Unmount(pivotDir, syscall.MNT_DETACH); err != nil{
+		return fmt.Errorf("unmount pivot_root dir %v", err)
+	}
+
+	// 删除临时文件夹
+	return os.Remove(pivotDir)
+}
