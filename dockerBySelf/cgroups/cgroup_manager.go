@@ -1,4 +1,4 @@
-package main
+package cgroups
 
 import (
 	"dockerBySelf/cgroups/subsystems"
