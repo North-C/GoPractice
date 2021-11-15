@@ -58,6 +58,19 @@ var runCommand = cli.Command{
 	},
 }
 
+var commitCommand = cli.Command{
+	Name: "commit",
+	Usage: "commit a container into image",
+	Action: func(context *cli.Context) error{
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Missing container command")
+		}
+		imageName := context.Args().Get(0)		
+		commitContainer(imageName)
+		return nil
+	},
+}
+
 // 这是内部执行的，不允许外部调用
 var initCommand = cli.Command{
 	Name:  "init",
