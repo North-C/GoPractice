@@ -77,6 +77,8 @@ func setUpMount() {
 	// 挂载 proc文件系统到容器当中，之后可以查看系统进程的资源情况
 	syscall.Mount("proc", "/proc", "proc", uintptr(defaultMountFlags), "")
 
+	// syscall.Mount("proc", "/proc", "move", syscall.MS_MOVE | syscall.MS_REC , "")
+
 	// tmpfs是一种基于内存的文件系统，可以使用RAM或swap分区来存储
 	// func Mount(source string, target string, fstype string, flags uintptr, data string) (err error)
 	syscall.Mount("tmpfs", "/dev", "tmpfs", syscall.MS_NOSUID|syscall.MS_STRICTATIME, "mode=755")
@@ -88,7 +90,7 @@ func pivotRoot(root string) error {
 	// systemd 加入linux之后， mount namespace就会变成 shared by default，所以需要声明新的mount namespace 独立
 	// MS_PRIVATE 使得该文件系统中的mount和umount都不会超出该文件系统
 	// MS_SLAVE  使得本系统内的mount和umount不能出去，但是同一个group当中的其他mount和umount事件可以传进来
-	if err := syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
+	if err := syscall.Mount("", "/", "", syscall.MS_SLAVE|syscall.MS_REC, ""); err != nil {
 		log.Infof("make parent mount private error: %v", err)
 		return fmt.Errorf("make parent mount private error: %v", err)
 	}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dockerBySelf/cgroups/subsystems"
+	// "dockerBySelf/cgroups/subsystems"
 	"dockerBySelf/container"
 	"fmt"
 
@@ -30,6 +30,10 @@ var runCommand = cli.Command{
 			Name: "cpuset",
 			Usage: "cpuset limit",
 		},
+		cli.StringFlag{
+			Name: "v",
+			Usage: "volume",
+		},
 	},
 	// run 执行的函数
 	Action: func(context *cli.Context) error {
@@ -43,12 +47,13 @@ var runCommand = cli.Command{
 
 		// cmd := context.Args().Get(0) // 对应的是`run -ti /bin/sh`中最后的`/bin/sh`
 		tty := context.Bool("ti")
-		resConf := &subsystems.ResourceConfig{
+		/* resConf := &subsystems.ResourceConfig{
 			MemoryLimit: context.String("m"),
 			CpuSet: context.String("cpuset"),
 			CpuShare: context.String("cpushare"),
-		}
-		Run(tty, cmdArray, resConf)
+		} */
+		volume := context.String("v")
+		Run(tty, cmdArray, volume)
 		return nil
 	},
 }

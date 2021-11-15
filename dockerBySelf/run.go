@@ -1,8 +1,8 @@
 package main
 
 import (
-	"dockerBySelf/cgroups"
-	"dockerBySelf/cgroups/subsystems"
+	// "dockerBySelf/cgroups"
+	// "dockerBySelf/cgroups/subsystems"
 	"dockerBySelf/container"
 	"os"
 
@@ -27,8 +27,9 @@ func Run(tty bool, command string) {
 }
 */
 
-func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
-	parent, writePipe := container.NewParentProcess(tty)
+func Run(tty bool, comArray []string, volume string) {
+
+	parent, writePipe := container.NewParentProcess(tty, volume)
 	if parent == nil {
 		log.Errorf("New parent process error")
 		return
@@ -36,17 +37,17 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 	if err := parent.Start(); err != nil {
 		log.Error(err)
 	}
-	cgroupManager := cgroups.NewCgroupManager("donkey-cgroup")
+	/* cgroupManager := cgroups.NewCgroupManager("donkey-cgroup")
 	defer cgroupManager.Destroy()
 	cgroupManager.Set(res)
-	cgroupManager.Apply(parent.Process.Pid)
+	cgroupManager.Apply(parent.Process.Pid) */
 
 	// 发送用户命令
 	sendInitCommand(comArray, writePipe)
 	parent.Wait()
-	mntURL := "/root/mnt/"
-	rootURL := "/root/"
-	container.DeleteWorkSpace(rootURL, mntURL)
+	mntURL := "/root/mnt"
+	rootURL := "/root"
+	container.DeleteWorkSpace(rootURL, mntURL, volume)
 	os.Exit(0)
 }
 
