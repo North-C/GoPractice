@@ -13,6 +13,8 @@ import (
 // 父进程，即当前进程执行的内容
 // 第一种方法: /proc/self 即当前进程运行的环境, 在其中利用`exe init agrs`来执行fork 创建新的子进程， 设置CLONE的flag进行隔离
 // 第二种： 使用匿名管道来实现父子通信
+
+/* Tag 4.3
 func NewParentProcess(tty bool, volume string) (*exec.Cmd, *os.File) {
 	readPipe, writePipe, err := NewPipe()
 	if err != nil {
@@ -37,6 +39,30 @@ func NewParentProcess(tty bool, volume string) (*exec.Cmd, *os.File) {
 	rootURL := "/root"
 	NewWorkSpace(rootURL, mntURL, volume)
 	cmd.Dir = mntURL // 利用mnt来作为root目录，与宿主机隔离开
+	return cmd, writePipe
+}
+*/
+// Tag 3.x & 5.1
+func NewParentProcess(tty bool)(*exec.Cmd, *os.File){
+	readPipe, writePipe, err := NewPipe()
+	if err != nil{
+		log.Error("New pipe error %v", err)
+		return nil, nil
+	}
+
+	cmd := exec.Command("/pro/self/exe", "init")
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Cloneflags: syscall.CLONE_NEWIPC | syscall.CLONE_NEWUTS |
+		syscall.CLONE_NEWNS | syscall.CLONE_NEWNET | syscall.CLONE_NEWPID,
+	}
+	if tty{
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
+
+	cmd.ExtraFiles = []*os.File{readPipe}
+	cmd.Dir = "/root/busybox"
 	return cmd, writePipe
 }
 
