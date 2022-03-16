@@ -86,6 +86,10 @@ func setupLogger()error{
 	return nil
 }
 
+// @title 博客系统
+// @version 1.0
+// @description GO语言博客系统
+// @termsOfService None
 func main() {
 	// 将应用配置和gin的运行模式进行设置
 	gin.SetMode(global.ServerSetting.RunMode)
