@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
+// 对应路由的处理方法,编写好之后
 type Article struct{
 
 }

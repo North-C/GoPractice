@@ -30,9 +30,9 @@ type DatabaseSettings struct{
   	ParseTime		bool
   	MaxIdleConns 	int
   	MaxOpenConns	int
-
 }
 
+// 读取区段配置的配置方法
 func (s *Setting) ReadSection(k string, v interface{}) error{
 	err := s.vp.UnmarshalKey(k, v)
 	if err != nil{

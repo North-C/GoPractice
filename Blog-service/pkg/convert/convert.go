@@ -6,7 +6,6 @@ type StrTo string
 
 // 对返回的HTTP状态码和接口返回的响应结果进行判断
 // 返回定义好的响应结果
-
 func (s StrTo) String() string {
 	return string(s)
 }

@@ -10,7 +10,7 @@ import (
 
 func GetPage(c *gin.Context) int {
 	// Query解析URL中的参数
-	page := convert.StrTo(c.Query("page")).MustInt()
+	page := convert.StrTo(c.Query("page")).MustInt()  //转换为int类型
 	if page <= 0{
 		return 1
 	}
@@ -31,11 +31,11 @@ func GetPageSize(c *gin.Context) int{
 	return pageSize
 }
 
-
+// Page的偏移量
 func GetPageOffset(page, pageSize int) int{
 	result := 0
 	if page > 0{
-		result = (page - 1) *pageSize
+		result = (page - 1) * pageSize
 	}
 	return result
 }

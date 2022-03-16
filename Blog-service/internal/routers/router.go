@@ -5,7 +5,8 @@ import (
 
 	"blog-service/internal/routers/api/v1"
 )
-	
+
+// 设计完成后，进行基础编码，确定好方法原型
 func NewRouter() *gin.Engine{
 	r := gin.New()
 	r.Use(gin.Logger())
@@ -13,6 +14,7 @@ func NewRouter() *gin.Engine{
 
 	article := v1.NewArticle()
 	tag := v1.NewTag()
+	// 有处理Handler方法后，注册到对应的路由规则上
 	apiv1 := r.Group("/api/v1")
 	{
 		apiv1.POST("/tags", tag.Create)
@@ -27,7 +29,6 @@ func NewRouter() *gin.Engine{
 		apiv1.PATCH("/articles/:id/state", article.Update)
 		apiv1.GET("/articles/:id", article.Get)
 		apiv1.GET("/articles", article.List)
-
 	}
 	return r
 }
