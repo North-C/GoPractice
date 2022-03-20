@@ -6,13 +6,16 @@ import (
 	"blog-service/internal/routers/api/v1"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+	"blog-service/internal/middleware"
 )
 
 // 设计完成后，进行基础编码，确定好方法原型
 func NewRouter() *gin.Engine{
 	r := gin.New()
+	// 注册
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middleware.Translations())  
 
 	//url := ginSwagger.URL("http://127.0.0.1:8010/swagger/doc.json")		//手动指定swagger.json的路径
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))		// 初始化 docs 包和注册一个针对 swagger 的路由
